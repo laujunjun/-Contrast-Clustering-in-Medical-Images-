@@ -54,8 +54,52 @@
 
 ## 二、复现
 1. 数据预处理
-- 将WSI分割在ROI区域内分割成patch，注意WSI的level与patch的尺寸大小。
-- 准备wsi标签文件：脚本```generate_slide_label.py```
-- 
+  - 将WSI分割在ROI区域内分割成patch，注意WSI的level与patch的尺寸大小。
+  - 准备wsi标签文件：脚本```generate_slide_label.py```
+2. 训练
+  - 代码： ```train_resNet.py```
+  - 输入：配置文件路径（包含输入数据与参数）
+  - 输出：每一轮的模型参数文件(.pth)
+  - 模型构建与优化：
+    
+  	•	使用 resnet 获取ResNet50架构，并加载到CUDA设备（如果可用）。
+
+  	•	初始化了自动混合精度训练的 GradScaler，可以提高训练效率和稳定性。
+
+  	•	optimizer 使用的是AdamW优化器，并应用学习率调度函数（lr_schedule），根据训练进度逐步调整学习率。
+
+  - 训练过程：
+    
+  	•	进入训练循环，每个epoch中遍历训练数据。
+
+  	•	每次计算损失（实例损失、聚类损失、Barlow损失），并根据加权的总损失进行反向传播，更新模型权重。
+
+  	•	每10000个batch输出一次训练进度，包括学习率、各类损失等。
+
+  	•	每个epoch结束时，会进行一次验证，并计算验证损失。
+  - 模型保存与恢复：
+    
+  	•	支持从之前的检查点加载模型权重（initial_checkpoint），恢复训练进度。
+
+  	•	每个epoch结束时保存当前模型的状态字典（state_dict）。
+3. 推理
+  - 代码：```test_resNet.py```
+  - 输入：最好轮次的模型参数
+  - 输出：128维特征（可在配置文件中调整）、聚类类别
+  - 加载对比学习模型
+    
+	•	res = resnet.get_resnet("ResNet50")：获取 ResNet50 作为主干网络。
+
+	•	解析 YAML 配置文件，获取模型参数 args。
+
+	•	```model = model.Net(arg=args,resnet=res).to(device)```：构建自定义深度学习模型，加载预训练权重。
+
+
+
+
+
+
+
+
 
 
