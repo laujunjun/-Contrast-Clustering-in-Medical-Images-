@@ -82,7 +82,7 @@ def validate(net, valid_loader, epoch):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    config = yaml_config_hook("/home/ljj/code/Pathosig_master/code/1_deeplearning_contrastive_cluster/config/config_resnet.yaml")
+    config = yaml_config_hook("/config/config_resnet.yaml")
     for k, v in config.items():
         parser.add_argument(f"--{k}", default=v, type=type(v))
     args = parser.parse_args()
